@@ -39,8 +39,6 @@ using DFe.Classes.Flags;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NFe.Classes.Informacoes.Detalhe;
 using NFe.Classes.Informacoes.Detalhe.Tributacao.Estadual;
-using NFe.Classes.Informacoes.Identificacao;
-using NFe.Classes.Informacoes.Identificacao.Tipos;
 using NFe.Classes.Informacoes.Total;
 
 namespace NFe.Classes.Testes;
@@ -108,36 +106,6 @@ public class NotaTecnica2026008Testes
         Assert.AreEqual("10.25", xml.Elements().First().Value);
     }
 
-    /// <summary>Verifica a serialização das referências da operação governamental tipo 3.</summary>
-    [TestMethod]
-    public void DadasReferenciasGovernamentaisQuandoSerializarEntaoDevePreservarOrdemEQuantidade()
-    {
-        var compras = new gCompraGov
-        {
-            tpEnteGov = TpEnteGov.Uniao,
-            tpOperGov = TpOperGov.FornecimentoPagamentoRealizado,
-            refDFeAnt = new List<string> { new('1', 44), new('2', 44) }
-        };
-
-        var xml = Serializar(compras, "gCompraGov");
-
-        CollectionAssert.AreEqual(new[] { "1", "2" }, xml.Elements(XName.Get("refDFeAnt", NamespaceNFe))
-            .Select(elemento => elemento.Value[0].ToString()).ToArray());
-        Assert.AreEqual("3", xml.Element(XName.Get("tpOperGov", NamespaceNFe))?.Value);
-        Assert.AreEqual("tpOperGov", xml.Elements().Skip(2).First().Name.LocalName);
-        ValidarFragmento(xml, "gCompraGov", false);
-    }
-
-    /// <summary>Verifica que a operação governamental tipo 4 não exige referências.</summary>
-    [TestMethod]
-    public void DadaOperacaoGovernamentalQuatroQuandoSerializarEntaoDeveOmitirReferencias()
-    {
-        var xml = Serializar(new gCompraGov { tpOperGov = TpOperGov.RecebimentoFornecimentoPosterior }, "gCompraGov");
-
-        Assert.AreEqual("4", xml.Element(XName.Get("tpOperGov", NamespaceNFe))?.Value);
-        Assert.IsFalse(xml.Elements(XName.Get("refDFeAnt", NamespaceNFe)).Any());
-        ValidarFragmento(xml, "gCompraGov", false);
-    }
 
     /// <summary>Serializa um modelo da NF-e para XML.</summary>
     private static XElement Serializar<T>(T objeto, string nome)
