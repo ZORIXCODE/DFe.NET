@@ -1,3 +1,36 @@
+/********************************************************************************/
+/* Projeto: Biblioteca ZeusNFe                                                  */
+/* Biblioteca C# para emissão de Nota Fiscal Eletrônica - NFe e Nota Fiscal de  */
+/* Consumidor Eletrônica - NFC-e (http://www.nfe.fazenda.gov.br)                */
+/*                                                                              */
+/* Direitos Autorais Reservados (c) 2014 Adenilton Batista da Silva             */
+/*                                       Zeusdev Tecnologia LTDA ME             */
+/*                                                                              */
+/*  Você pode obter a última versão desse arquivo no GitHub                     */
+/* localizado em https://github.com/adeniltonbs/Zeus.Net.NFe.NFCe               */
+/*                                                                              */
+/*                                                                              */
+/*  Esta biblioteca é software livre; você pode redistribuí-la e/ou modificá-la */
+/* sob os termos da Licença Pública Geral Menor do GNU conforme publicada pela  */
+/* Free Software Foundation; tanto a versão 2.1 da Licença, ou (a seu critério) */
+/* qualquer versão posterior.                                                   */
+/*                                                                              */
+/*  Esta biblioteca é distribuída na expectativa de que seja útil, porém, SEM   */
+/* NENHUMA GARANTIA; nem mesmo a garantia implícita de COMERCIABILIDADE OU      */
+/* ADEQUAÇÃO A UMA FINALIDADE ESPECÍFICA. Consulte a Licença Pública Geral Menor*/
+/* do GNU para mais detalhes. (Arquivo LICENÇA.TXT ou LICENSE.TXT)              */
+/*                                                                              */
+/*  Você deve ter recebido uma cópia da Licença Pública Geral Menor do GNU junto*/
+/* com esta biblioteca; se não, escreva para a Free Software Foundation, Inc.,  */
+/* no endereço 59 Temple Street, Suite 330, Boston, MA 02111-1307 USA.          */
+/* Você também pode obter uma copia da licença em:                              */
+/* http://www.opensource.org/licenses/lgpl-license.php                          */
+/*                                                                              */
+/* Zeusdev Tecnologia LTDA ME - adenilton@zeusautomacao.com.br                  */
+/* http://www.zeusautomacao.com.br/                                             */
+/* Rua Comendador Francisco josé da Cunha, 111 - Itabaiana - SE - 49500-000     */
+/********************************************************************************/
+
 using System.Xml;
 using System.Xml.Linq;
 using System.Xml.Schema;
@@ -18,6 +51,7 @@ public class NotaTecnica2026008Testes
 {
     private const string NamespaceNFe = "http://www.portalfiscal.inf.br/nfe";
 
+    /// <summary>Verifica a ordem e a precisão dos valores líquidos no item.</summary>
     [TestMethod]
     public void DadoItemComValoresLiquidosQuandoSerializarEntaoDeveRespeitarOrdemEPrecisao()
     {
@@ -32,6 +66,7 @@ public class NotaTecnica2026008Testes
         ValidarFragmento(xml, "prod", false);
     }
 
+    /// <summary>Verifica a ausência de valores líquidos opcionais.</summary>
     [TestMethod]
     public void DadoItemSemValoresLiquidosQuandoSerializarEntaoDeveOmitirOsDoisCampos()
     {
@@ -41,6 +76,7 @@ public class NotaTecnica2026008Testes
         Assert.IsNull(xml.Element(XName.Get("vProdLiq", NamespaceNFe)));
     }
 
+    /// <summary>Verifica que o schema exige ambos os valores líquidos quando o grupo é informado.</summary>
     [TestMethod]
     public void DadoSomenteUmValorLiquidoQuandoValidarEntaoSchemaDeveRejeitar()
     {
@@ -51,6 +87,7 @@ public class NotaTecnica2026008Testes
         ValidarFragmento(xml, "prod", true);
     }
 
+    /// <summary>Verifica a serialização do ICMS previsto.</summary>
     [TestMethod]
     public void DadoIcmsPrevistoQuandoSerializarEntaoDeveGerarGrupoEValor()
     {
@@ -61,6 +98,7 @@ public class NotaTecnica2026008Testes
         ValidarFragmento(xml, "ICMS", false);
     }
 
+    /// <summary>Verifica a posição do total líquido antes dos totais de ICMS.</summary>
     [TestMethod]
     public void DadoTotalLiquidoQuandoSerializarEntaoDeveGerarCampoAntesDoIcmsTot()
     {
@@ -70,6 +108,7 @@ public class NotaTecnica2026008Testes
         Assert.AreEqual("10.25", xml.Elements().First().Value);
     }
 
+    /// <summary>Verifica a serialização das referências da operação governamental tipo 3.</summary>
     [TestMethod]
     public void DadasReferenciasGovernamentaisQuandoSerializarEntaoDevePreservarOrdemEQuantidade()
     {
@@ -89,6 +128,7 @@ public class NotaTecnica2026008Testes
         ValidarFragmento(xml, "gCompraGov", false);
     }
 
+    /// <summary>Verifica que a operação governamental tipo 4 não exige referências.</summary>
     [TestMethod]
     public void DadaOperacaoGovernamentalQuatroQuandoSerializarEntaoDeveOmitirReferencias()
     {
@@ -99,6 +139,7 @@ public class NotaTecnica2026008Testes
         ValidarFragmento(xml, "gCompraGov", false);
     }
 
+    /// <summary>Serializa um modelo da NF-e para XML.</summary>
     private static XElement Serializar<T>(T objeto, string nome)
     {
         var serializador = new XmlSerializer(typeof(T), new XmlRootAttribute(nome) { Namespace = NamespaceNFe });
@@ -107,6 +148,7 @@ public class NotaTecnica2026008Testes
         return XElement.Parse(escrita.ToString());
     }
 
+    /// <summary>Cria um produto válido para os testes de schema.</summary>
     private static prod Produto() => new()
     {
         cProd = "1", cEAN = "SEM GTIN", xProd = "PRODUTO TESTE", NCM = "22021000", CFOP = 5102,
@@ -114,6 +156,7 @@ public class NotaTecnica2026008Testes
         qTrib = 2, vUnTrib = 10, indTot = (IndicadorTotal)1
     };
 
+    /// <summary>Valida um fragmento contra o schema do projeto de exemplo.</summary>
     private static void ValidarFragmento(XElement xml, string nome, bool deveRejeitar)
     {
         var pasta = new DirectoryInfo(AppContext.BaseDirectory);
