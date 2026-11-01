@@ -1676,7 +1676,6 @@ namespace NFe.Utils.Enderecos
                 ServicoNFe.NFeRetAutorizacao,
                 ServicoNFe.NfeConsultaProtocolo,
                 ServicoNFe.NfeStatusServico,
-                ServicoNFe.NfeInutilizacao,
                 ServicoNFe.RecepcaoEventoCancelmento,
                 ServicoNFe.RecepcaoEventoCartaCorrecao
             };
@@ -1856,7 +1855,6 @@ namespace NFe.Utils.Enderecos
                  servico == ServicoNFe.NFeRetAutorizacao ||
                  servico == ServicoNFe.NfeConsultaProtocolo ||
                  servico == ServicoNFe.NfeStatusServico ||
-                 servico == ServicoNFe.NfeInutilizacao ||
                  servico == ServicoNFe.RecepcaoEventoCancelmento ||
                  servico == ServicoNFe.RecepcaoEventoCartaCorrecao))
                 estado = Estado.SVRS;
