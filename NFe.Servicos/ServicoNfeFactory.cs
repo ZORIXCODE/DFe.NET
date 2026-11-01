@@ -195,7 +195,7 @@ namespace NFe.Servicos
                     return new NfeRetAutorizacao(url, certificado, cfg.TimeOut);
 
                 case ServicoNFe.NfeInutilizacao:
-                    if (!UsaSvrsParaContribuinteExclusivo(cfg) && cfg.UsaSvanNFe4(cfg.VersaoNfeInutilizacao))
+                    if (cfg.UsaSvanNFe4(cfg.VersaoNfeInutilizacao))
                     {
                         return new NFeInutilizacao4SVAN(url, certificado, cfg.TimeOut);
                     }
