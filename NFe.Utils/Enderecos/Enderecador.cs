@@ -1823,6 +1823,20 @@ namespace NFe.Utils.Enderecos
             if (!string.IsNullOrWhiteSpace(uf))
                 estado = estado.SiglaParaEstado(uf);
 
+            // A NT 2026.007 centraliza na SVRS a NF-e do emitente contribuinte
+            // exclusivo do IBS/CBS sem IE. AC usa os endpoints normais da SVRS;
+            // cUF da configuracao continua sendo a UF real do emitente.
+            if (cfgServico.ContribuinteExclusivoIbsCbsSemIe &&
+                cfgServico.ModeloDocumento == ModeloDocumento.NFe &&
+                (servico == ServicoNFe.NFeAutorizacao ||
+                 servico == ServicoNFe.NFeRetAutorizacao ||
+                 servico == ServicoNFe.NfeConsultaProtocolo ||
+                 servico == ServicoNFe.NfeStatusServico ||
+                 servico == ServicoNFe.NfeInutilizacao ||
+                 servico == ServicoNFe.RecepcaoEventoCancelmento ||
+                 servico == ServicoNFe.RecepcaoEventoCartaCorrecao))
+                estado = Estado.AC;
+
             return ObterUrlServico(servico, versaoServico.GetValueOrDefault(), estado, cfgServico.tpAmb, cfgServico.ModeloDocumento, cfgServico.tpEmis);
         }
 

@@ -58,6 +58,63 @@ namespace NFe.Utils.Testes
                 TipoAmbiente.Producao, ModeloDocumento.NFe, TipoEmissao.teNormal);
             Assert.Equal("https://nfe.fazenda.sp.gov.br/ws/nfeautorizacao4.asmx", url);
         }
+
+        [Theory]
+        [InlineData(Estado.SP, TipoAmbiente.Homologacao, "https://nfe-homologacao.svrs.rs.gov.br/ws/NfeAutorizacao/NFeAutorizacao4.asmx")]
+        [InlineData(Estado.SP, TipoAmbiente.Producao, "https://nfe.svrs.rs.gov.br/ws/NfeAutorizacao/NFeAutorizacao4.asmx")]
+        [InlineData(Estado.BA, TipoAmbiente.Homologacao, "https://nfe-homologacao.svrs.rs.gov.br/ws/NfeAutorizacao/NFeAutorizacao4.asmx")]
+        [InlineData(Estado.MA, TipoAmbiente.Producao, "https://nfe.svrs.rs.gov.br/ws/NfeAutorizacao/NFeAutorizacao4.asmx")]
+        public void ContribuinteExclusivoSemIeDeveAutorizarNaSvrsSemAlterarUfDoEmitente(
+            Estado uf, TipoAmbiente ambiente, string urlEsperada)
+        {
+            var configuracao = new ConfiguracaoServico
+            {
+                cUF = uf,
+                tpAmb = ambiente,
+                ModeloDocumento = ModeloDocumento.NFe,
+                tpEmis = TipoEmissao.teNormal,
+                VersaoNFeAutorizacao = VersaoServico.Versao400,
+                ContribuinteExclusivoIbsCbsSemIe = true
+            };
+
+            Assert.Equal(urlEsperada, Enderecador.ObterUrlServico(ServicoNFe.NFeAutorizacao, configuracao));
+            Assert.Equal(uf, configuracao.cUF);
+        }
+
+        [Fact]
+        public void ContribuinteExclusivoSemIeDeveConsultarEEnviarEventosNaSvrs()
+        {
+            var configuracao = new ConfiguracaoServico
+            {
+                cUF = Estado.SP,
+                tpAmb = TipoAmbiente.Homologacao,
+                ModeloDocumento = ModeloDocumento.NFe,
+                tpEmis = TipoEmissao.teNormal,
+                VersaoNfeConsultaProtocolo = VersaoServico.Versao400,
+                VersaoRecepcaoEventoCceCancelamento = VersaoServico.Versao400,
+                ContribuinteExclusivoIbsCbsSemIe = true
+            };
+
+            Assert.Contains("svrs.rs.gov.br", Enderecador.ObterUrlServico(ServicoNFe.NfeConsultaProtocolo, configuracao));
+            Assert.Contains("svrs.rs.gov.br", Enderecador.ObterUrlServico(ServicoNFe.RecepcaoEventoCancelmento, configuracao));
+        }
+
+        [Fact]
+        public void OpcaoDeContribuinteExclusivoNaoDeveAlterarRotaDaNfce()
+        {
+            var configuracao = new ConfiguracaoServico
+            {
+                cUF = Estado.SP,
+                tpAmb = TipoAmbiente.Producao,
+                ModeloDocumento = ModeloDocumento.NFCe,
+                tpEmis = TipoEmissao.teNormal,
+                VersaoNFeAutorizacao = VersaoServico.Versao400,
+                ContribuinteExclusivoIbsCbsSemIe = true
+            };
+
+            var url = Enderecador.ObterUrlServico(ServicoNFe.NFeAutorizacao, configuracao);
+            Assert.DoesNotContain("svrs.rs.gov.br", url);
+        }
     }
 
     public class EstadosData : TheoryData<Estado, TipoAmbiente, ServicoNFe>
