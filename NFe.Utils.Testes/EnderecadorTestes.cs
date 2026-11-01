@@ -59,12 +59,15 @@ namespace NFe.Utils.Testes
             Assert.Equal("https://nfe.fazenda.sp.gov.br/ws/nfeautorizacao4.asmx", url);
         }
 
+        /// <summary>
+        /// Dado emitente exclusivo sem IE, quando autoriza NF-e, entao usa a SVRS e preserva a UF.
+        /// </summary>
         [Theory]
         [InlineData(Estado.SP, TipoAmbiente.Homologacao, "https://nfe-homologacao.svrs.rs.gov.br/ws/NfeAutorizacao/NFeAutorizacao4.asmx")]
         [InlineData(Estado.SP, TipoAmbiente.Producao, "https://nfe.svrs.rs.gov.br/ws/NfeAutorizacao/NFeAutorizacao4.asmx")]
         [InlineData(Estado.BA, TipoAmbiente.Homologacao, "https://nfe-homologacao.svrs.rs.gov.br/ws/NfeAutorizacao/NFeAutorizacao4.asmx")]
         [InlineData(Estado.MA, TipoAmbiente.Producao, "https://nfe.svrs.rs.gov.br/ws/NfeAutorizacao/NFeAutorizacao4.asmx")]
-        public void ContribuinteExclusivoSemIeDeveAutorizarNaSvrsSemAlterarUfDoEmitente(
+        public void DadoEmitenteExclusivoSemIe_QuandoAutorizaNFe_EntaoUsaSvrsSemAlterarUf(
             Estado uf, TipoAmbiente ambiente, string urlEsperada)
         {
             var configuracao = new ConfiguracaoServico
@@ -81,8 +84,11 @@ namespace NFe.Utils.Testes
             Assert.Equal(uf, configuracao.cUF);
         }
 
+        /// <summary>
+        /// Dado emitente exclusivo sem IE, quando consulta ou cancela, entao usa a SVRS.
+        /// </summary>
         [Fact]
-        public void ContribuinteExclusivoSemIeDeveConsultarEEnviarEventosNaSvrs()
+        public void DadoEmitenteExclusivoSemIe_QuandoConsultaOuCancela_EntaoUsaSvrs()
         {
             var configuracao = new ConfiguracaoServico
             {
@@ -99,8 +105,11 @@ namespace NFe.Utils.Testes
             Assert.Contains("svrs.rs.gov.br", Enderecador.ObterUrlServico(ServicoNFe.RecepcaoEventoCancelmento, configuracao));
         }
 
+        /// <summary>
+        /// Dada NFC-e, quando a opcao exclusiva esta ativa, entao preserva a rota normal.
+        /// </summary>
         [Fact]
-        public void OpcaoDeContribuinteExclusivoNaoDeveAlterarRotaDaNfce()
+        public void DadaNfce_QuandoOpcaoExclusivaEstaAtiva_EntaoPreservaRotaNormal()
         {
             var configuracao = new ConfiguracaoServico
             {
@@ -114,6 +123,25 @@ namespace NFe.Utils.Testes
 
             var url = Enderecador.ObterUrlServico(ServicoNFe.NFeAutorizacao, configuracao);
             Assert.DoesNotContain("svrs.rs.gov.br", url);
+        }
+
+        /// <summary>
+        /// Dado emitente comum, quando autoriza NF-e, entao preserva a rota de sua UF.
+        /// </summary>
+        [Fact]
+        public void DadoEmitenteComum_QuandoAutorizaNFe_EntaoPreservaRotaDaUf()
+        {
+            var configuracao = new ConfiguracaoServico
+            {
+                cUF = Estado.SP,
+                tpAmb = TipoAmbiente.Producao,
+                ModeloDocumento = ModeloDocumento.NFe,
+                tpEmis = TipoEmissao.teNormal,
+                VersaoNFeAutorizacao = VersaoServico.Versao400
+            };
+
+            var url = Enderecador.ObterUrlServico(ServicoNFe.NFeAutorizacao, configuracao);
+            Assert.Equal("https://nfe.fazenda.sp.gov.br/ws/nfeautorizacao4.asmx", url);
         }
     }
 

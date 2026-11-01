@@ -33,6 +33,9 @@ namespace NFe.Servicos
 {
     public static class ServicoNfeFactory
     {
+        /// <summary>
+        /// Verifica se a NF-e do emitente sem IE deve usar os servicos da SVRS.
+        /// </summary>
         private static bool UsaSvrsParaContribuinteExclusivo(ConfiguracaoServico cfg)
         {
             return cfg.ContribuinteExclusivoIbsCbsSemIe && cfg.ModeloDocumento == ModeloDocumento.NFe;
