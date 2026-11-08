@@ -25,6 +25,10 @@ using NFe.Classes.Informacoes.Emitente;
 using NFe.Classes.Informacoes.Total.IbsCbs;
 using GrupoSimplesItem = NFe.Classes.Informacoes.Detalhe.Tributacao.Compartilhado.gTribSN;
 using GrupoSimplesTotal = NFe.Classes.Informacoes.Total.IbsCbs.gTribSN;
+using GrupoIbsCbs = NFe.Classes.Informacoes.Detalhe.Tributacao.Compartilhado.InformacoesIbsCbs.gIBSCBS;
+using GrupoIbsUf = NFe.Classes.Informacoes.Detalhe.Tributacao.Compartilhado.InformacoesIbsCbs.InformacoesIbs.gIBSUF;
+using GrupoIbsMun = NFe.Classes.Informacoes.Detalhe.Tributacao.Compartilhado.InformacoesIbsCbs.InformacoesIbs.gIBSMun;
+using GrupoCbs = NFe.Classes.Informacoes.Detalhe.Tributacao.Compartilhado.InformacoesIbsCbs.InformacoesCbs.gCBS;
 
 namespace NFe.Classes.Testes;
 
@@ -110,6 +114,46 @@ public class NotaTecnica2026005Testes
         }, "IBSCBS");
 
         ValidarFragmento(imposto, "IBSCBS", true);
+    }
+
+    /// <summary>Verifica o cenário do CRT 2, em que o IBS regular convive com a CBS do Simples.</summary>
+    [TestMethod]
+    public void DadoIbsRegularECbsSimplesQuandoSerializarEntaoDeveValidarSchema()
+    {
+        var imposto = Serializar(new IBSCBS
+        {
+            CST = CST.Cst000,
+            cClassTrib = "000001",
+            gIBSCBS = new GrupoIbsCbs
+            {
+                vBC = 100,
+                gIBSUF = new GrupoIbsUf
+                {
+                    pIBSUF = 0.1m,
+                    vIBSUF = 0.1m
+                },
+                gIBSMun = new GrupoIbsMun
+                {
+                    pIBSMun = 0,
+                    vIBSMun = 0
+                },
+                vIBS = 0.1m,
+                gCBS = new GrupoCbs
+                {
+                    pCBS = 0,
+                    vCBS = 0
+                }
+            },
+            gTribSN = new GrupoSimplesItem
+            {
+                gCBSSN = new gCBSSN { pCBSSN = 0.0000m, vCBSSN = 0.00m }
+            }
+        }, "IBSCBS");
+
+        Assert.AreEqual("0.0000", imposto.Element(XName.Get("gTribSN", NamespaceNFe))
+            ?.Element(XName.Get("gCBSSN", NamespaceNFe))
+            ?.Element(XName.Get("pCBSSN", NamespaceNFe))?.Value);
+        ValidarFragmento(imposto, "IBSCBS", false);
     }
 
     /// <summary>Serializa um objeto XML da NF-e.</summary>
