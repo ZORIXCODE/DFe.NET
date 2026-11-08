@@ -72,5 +72,10 @@ namespace NFe.Classes.Informacoes.Total.IbsCbs
         /// </summary>
         [XmlElement("gEstornoCred")]
         public gEstornoCredTotal gEstornoCred { get; set; }
+
+        /// <summary>
+        ///     W59h - Grupo de totais da composição do IBS e da CBS para o Simples Nacional (NT 2026.005).
+        /// </summary>
+        public gTribSN gTribSN { get; set; }
     }
 }

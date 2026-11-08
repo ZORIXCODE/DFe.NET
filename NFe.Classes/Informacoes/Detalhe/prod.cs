@@ -264,6 +264,11 @@ namespace NFe.Classes.Informacoes.Detalhe
         ///     I17c - Indicador de fornecimento de bem móvel usado
         /// </summary>
         public IndBemMovelUsado? indBemMovelUsado { get; set; }
+
+        /// <summary>
+        ///     I17d - Código de atividade do Simples Nacional para cálculo do IBS e da CBS (NT 2026.005).
+        /// </summary>
+        public string cAtivSN { get; set; }
         
         /// <summary>
         ///     I18 - Declaração de Importação
